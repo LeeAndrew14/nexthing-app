@@ -9,9 +9,7 @@ import toast from 'react-hot-toast'
 export default function Home() {
   return (
     <div className={styles.container}>
-       <button onClick={() => toast.success('Hello toast!')}>
-         Toast me!
-       </button>
+
     </div>
   )
 }
