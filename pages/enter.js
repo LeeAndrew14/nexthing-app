@@ -1,4 +1,4 @@
-import { auth, googleAuthProvider } from '@lib/firebase';
+import { auth, firestore, googleAuthProvider } from '@lib/firebase';
 import { UserContext } from '@lib/context';
 
 import { useEffect, useState, useCallback, useContext } from 'react';
@@ -58,11 +58,11 @@ function UsernameForm() {
     if (val.length < 3) {
       setFormValue(val);
       setLoading(false);
-      setInvalid(false);
+      setIsValid(false);
     }
 
     if (re.test(val)) {
-      setFromValue(val);
+      setFormValue(val);
       setLoading(true);
       setIsValid(false);
     }
@@ -87,7 +87,7 @@ function UsernameForm() {
     e.preventDefault();
 
     // Create refs for both documents
-    const userDoc = firebase.doc(`users/${user.uid}`);
+    const userDoc = firestore.doc(`users/${user.uid}`);
     const usernameDoc = firestore.doc(`usernames/${formValue}`);
 
     // Commit both docs together as a batch write.
