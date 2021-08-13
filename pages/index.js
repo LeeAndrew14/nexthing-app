@@ -1,15 +1,62 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import styles from '@styles/Home.module.css'
+import Loader from '@components/Loader';
+import PostFeed from '@components/PostFeed';
+import { firestore, postToJSON, fromMillis } from '@lib/firebase';
+import { useState } from 'react';
 
-import Loader from '../components/Loader.js';
+// Max post to query per page
+const LIMIT = 1;
 
-import toast from 'react-hot-toast'
+export async function getServerSideProps(context) {
+  const postsQuery = firestore
+    .collectionGroup('posts')
+    .where('published', '==', true)
+    .orderBy('createdAt', 'desc')
+    .limit(LIMIT);
 
-export default function Home() {
+  const posts = (await postsQuery.get()).docs.map(postToJSON);
+
+  return {
+    props: { posts }, // will be passed to the page component as props
+  };
+}
+
+export default function Home(props) {
+  const [posts, setPosts] = useState(props.posts);
+  const [loading, setLoading] = useState(false);
+  const [postEnd, setPostsEnd] = useState(false);
+
+  const getMorePosts = async () => {
+    setLoading(true);
+    const last = posts[posts.length - 1];
+
+    const cursor = typeof last.createdAt === 'number' ? fromMillis(last.createdAt) : last.createdAt;
+
+    const query = firestore
+      .collectionGroup('posts')
+      .where('published', '==', true)
+      .orderBy('createdAt', 'desc')
+      .startAfter(cursor)
+      .limit(LIMIT);
+
+    const newPosts = (await query.get()).docs.map((doc) => doc.data());
+
+    setPosts(posts.concat(newPosts));
+    setLoading(false);
+
+    if (newPosts.length < LIMIT) {
+      setPostsEnd(true);
+    }
+  };
+
   return (
-    <div className={styles.container}>
+    <main>
+      <PostFeed posts={posts} />
 
-    </div>
+      {!loading && !postEnd && <button onClick={getMorePosts}>Load more</button>}
+
+      <Loader show={loading} />
+
+      {postEnd && 'You have reached the end!'}
+    </main>
   )
 }
