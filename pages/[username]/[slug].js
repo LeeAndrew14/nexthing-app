@@ -42,8 +42,22 @@ export async function getStaticPaths() {
 }
 
 export default function Post({ }) {
+  const postRef = firestore.doc(props.path);
+  const [realtimePost] = useDocumentDate(postRef);
+
+  const post = realtimePost || props.post;
+
   return (
-    <main>
+    <main className={styles.container}>
+      <section>
+        <PostContent post={post} />
+      </section>
+
+      <aside className="card">
+        <p>
+          <strong>{post.heartCount || 0} 🤍</strong>
+        </p>
+      </aside>
     </main>
   )
 }
