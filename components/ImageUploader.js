@@ -34,8 +34,7 @@ export default function ImageUploader() {
           setUploading(false);
         });
     });
-
-  }
+}
 
   return (
     <div className="box">
@@ -51,7 +50,7 @@ export default function ImageUploader() {
         </>
       )}
 
-      {downloadURL && <code className="upload-snippet">{`![alt]${downloadURL}`}</code>}
+      {downloadURL && <code className="upload-snippet">{`![alt](${downloadURL})`}</code>}
     </div>
   );
 }
