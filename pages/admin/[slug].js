@@ -30,7 +30,7 @@ function PostManager() {
   // Checkout useDocumentDataOnce() for non realtime data
   const [post] = useDocumentData(postRef);
   return (
-    <main>
+    <main className={styles.container}>
       {post && (
         <>
           <section>
