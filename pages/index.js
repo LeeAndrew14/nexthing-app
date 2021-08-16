@@ -1,5 +1,6 @@
 import Loader from '@components/Loader';
 import PostFeed from '@components/PostFeed';
+import MetaTags from '@components/MetaTags';
 import { firestore, postToJSON, fromMillis } from '@lib/firebase';
 import { useState } from 'react';
 
@@ -29,6 +30,12 @@ export default function Home(props) {
     setLoading(true);
     const last = posts[posts.length - 1];
 
+    if (!last) {
+      setLoading(false);
+      setPostsEnd(true);
+      return;
+    }
+
     const cursor = typeof last.createdAt === 'number' ? fromMillis(last.createdAt) : last.createdAt;
 
     const query = firestore
@@ -50,6 +57,7 @@ export default function Home(props) {
 
   return (
     <main>
+      <MetaTags title="Home Page" description="Check out the latest post on our site!" />
       <PostFeed posts={posts} />
 
       {!loading && !postEnd && <button onClick={getMorePosts}>Load more</button>}

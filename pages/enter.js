@@ -1,28 +1,30 @@
 import { auth, firestore, googleAuthProvider } from '@lib/firebase';
 import { UserContext } from '@lib/context';
+import { useRouter } from 'next/router';
+import MetaTags from '@components/MetaTags';
 
 import { useEffect, useState, useCallback, useContext } from 'react';
-import debounce from 'lodash/debounce';
+import debounce from 'lodash.debounce';
+
+const useUser = () => useContext(UserContext);
 
 export default function Enter(props) {
-  const { user, username } = useContext(UserContext);
+  const { user, username } = useUser();
 
   // 1. user signed out <SignInButton />
   // 2. user signed in, but missing username <UsernameFrom />
-  // 3. user signed in, has username <SignOutButton />
+  // 3. user signed in, has username <RedirectToFeed />
 
   return (
     <main>
-      {user ?
-        !username ? <UsernameForm /> : <SignOutButton />
-        :
-        <SignInButton />
-      }
+      <MetaTags title="Enter" description="Sign up for this amazing app!" />
+      {user ? !username ? <UsernameForm /> : <RedirectToFeed /> : <SignInButton />}
     </main>
   );
 }
 
 function SignInButton() {
+  // TODO add try catch
   const signInWithGoogle = async () => {
     await auth.signInWithPopup(googleAuthProvider);
   }
@@ -34,8 +36,17 @@ function SignInButton() {
   );
 }
 
-function SignOutButton() {
-  return <button onClick={() => auth.signOut()}>Sign Out</button>
+function RedirectToFeed() {
+  const { user, username } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (user && username) {
+      router.push('/')
+    }
+  }, [user, username]);
+
+  return  <p>Redirecting...</p>
 }
 
 function UsernameForm() {
